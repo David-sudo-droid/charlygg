@@ -3,16 +3,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Car, Home } from "lucide-react";
-import { Listing, sampleListings } from "@/data/listings";
+import { useListings } from "@/hooks/useListings";
+import { Listing } from "@/lib/supabase";
 import ListingCard from "./ListingCard";
 import ListingModal from "./ListingModal";
 
 const ListingsGrid = () => {
-  const [listings] = useState<Listing[]>(sampleListings);
+  const { listings, loading } = useListings();
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'car' | 'property'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading listings...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const filteredListings = listings.filter(listing => {
     const matchesType = filterType === 'all' || listing.type === filterType;
