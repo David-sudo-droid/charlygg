@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Car, Home, MessageCircle } from "lucide-react";
-import { Listing } from "@/lib/supabase";
+import { Listing } from "@/data/listings";
 
 interface ListingCardProps {
   listing: Listing;
@@ -21,7 +21,7 @@ const ListingCard = ({ listing, onViewDetails }: ListingCardProps) => {
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const message = `Hi! I'm interested in the ${listing.title} listed for ${formatPrice(listing.price, listing.currency)}. Could you provide more information?`;
-    const whatsappUrl = `https://wa.me/${listing.whatsapp_number.replace('+', '')}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${listing.whatsappNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 

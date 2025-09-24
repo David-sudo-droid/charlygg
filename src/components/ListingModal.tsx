@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, MessageCircle, X, Car, Home } from "lucide-react";
-import { Listing } from "@/lib/supabase";
+import { Listing } from "@/data/listings";
 
 interface ListingModalProps {
   listing: Listing | null;
@@ -24,7 +24,7 @@ const ListingModal = ({ listing, isOpen, onClose }: ListingModalProps) => {
 
   const handleWhatsAppClick = () => {
     const message = `Hi! I'm interested in the ${listing.title} listed for ${formatPrice(listing.price, listing.currency)}. Could you provide more information?`;
-    const whatsappUrl = `https://wa.me/${listing.whatsapp_number.replace('+', '')}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${listing.whatsappNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
