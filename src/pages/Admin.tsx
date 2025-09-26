@@ -35,6 +35,30 @@ const Admin = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  
+  // Check admin status
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const { data, error } = await supabase.rpc('get_current_user_admin_status');
+        if (error || !data) {
+          navigate('/');
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges.",
+            variant: "destructive"
+          });
+        } else {
+          setIsAdmin(true);
+        }
+      } else if (!authLoading) {
+        navigate('/auth?redirect=admin');
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, navigate, toast, authLoading]);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -194,6 +218,18 @@ const Admin = () => {
   }
 
   if (!user) {
+    return null;
+  }
+
+  if (isAdmin === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return null;
   }
 
