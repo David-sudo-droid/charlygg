@@ -57,11 +57,6 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Location indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center text-white/70 text-sm">
-        <MapPin className="h-4 w-4 mr-1" />
-        Serving all of Kenya
-      </div>
     </section>
   );
 };

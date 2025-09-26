@@ -52,12 +52,6 @@ export const Header = () => {
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
             <>
-              <Link to="/admin">
-                <Button variant="outline" size="sm">
-                  <User className="h-4 w-4 mr-2" />
-                  Admin
-                </Button>
-              </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
@@ -97,12 +91,6 @@ export const Header = () => {
             
             {user ? (
               <div className="space-y-2 pt-2 px-3">
-                <Link to="/admin" className="block">
-                  <Button variant="outline" size="sm" className="w-full">
-                    <User className="h-4 w-4 mr-2" />
-                    Admin Dashboard
-                  </Button>
-                </Link>
                 <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
