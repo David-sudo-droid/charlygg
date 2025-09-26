@@ -7,17 +7,17 @@ const AdminAccess = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (user) {
         const { data, error } = await supabase.rpc('get_current_user_admin_status');
         if (!error) {
-          setIsAdmin(data);
+          setIsAdmin(data || false);
         }
       } else {
-        setIsAdmin(null);
+        setIsAdmin(false);
       }
     };
 
@@ -33,16 +33,12 @@ const AdminAccess = ({ children }: { children: React.ReactNode }) => {
     }
     
     // Check for key sequence: Ctrl+Alt+A
-    const handleKeyPress = async (event: KeyboardEvent) => {
+    const handleKeyPress = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.altKey && event.key === 'a') {
-        if (user) {
-          // Check if user is admin before navigating
-          const { data, error } = await supabase.rpc('get_current_user_admin_status');
-          if (!error && data) {
-            navigate('/admin');
-          } else {
-            alert('Access denied. Admin privileges required.');
-          }
+        if (user && isAdmin) {
+          navigate('/admin');
+        } else if (user && !isAdmin) {
+          alert('Access denied: Admin privileges required');
         } else {
           navigate('/auth?redirect=admin');
         }
@@ -51,7 +47,7 @@ const AdminAccess = ({ children }: { children: React.ReactNode }) => {
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [user, navigate, location, isAdmin]);
+  }, [user, isAdmin, navigate, location]);
 
   return <>{children}</>;
 };
