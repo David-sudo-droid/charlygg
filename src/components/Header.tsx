@@ -52,6 +52,9 @@ export const Header = () => {
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
             <>
+              <span className="text-sm text-muted-foreground">
+                Welcome, {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+              </span>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
@@ -83,21 +86,24 @@ export const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t bg-background">
-            <a href="#hero" className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Home</a>
-            <a href="#cars" className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Cars</a>
-            <a href="#properties" className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Properties</a>
-            <a href="#about" className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">About</a>
-            <a href="#contact" className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Contact</a>
+            <a href="#hero" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Home</a>
+            <a href="#cars" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Cars</a>
+            <a href="#properties" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Properties</a>
+            <a href="#about" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">About</a>
+            <a href="#contact" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Contact</a>
             
             {user ? (
               <div className="space-y-2 pt-2 px-3">
+                <div className="text-xs text-muted-foreground mb-2">
+                  Welcome, {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+                </div>
                 <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
               </div>
             ) : (
-              <Link to="/auth" className="block px-3 pt-2">
+              <Link to="/auth" className="block px-3 pt-2" onClick={() => setIsMenuOpen(false)}>
                 <Button size="sm" className="w-full">
                   <LogIn className="h-4 w-4 mr-2" />
                   Sign In
