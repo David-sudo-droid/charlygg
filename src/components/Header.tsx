@@ -1,13 +1,29 @@
 import { Button } from "@/components/ui/button";
-import { Car, Home, Menu, X, LogIn, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { Car, Home, Menu, X, LogIn, LogOut, User, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Check admin status when user changes
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const { data, error } = await supabase.rpc('get_current_user_admin_status');
+        setIsAdmin(!error && data === true);
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -46,6 +62,12 @@ export const Header = () => {
           <a href="#contact" className="text-sm font-medium transition-smooth hover:text-primary">
             Contact
           </a>
+          {isAdmin && (
+            <Link to="/admin" className="text-sm font-medium transition-smooth hover:text-primary flex items-center gap-1">
+              <Settings className="h-4 w-4" />
+              Admin Panel
+            </Link>
+          )}
         </nav>
 
         {/* Auth & CTA Buttons */}
@@ -54,6 +76,7 @@ export const Header = () => {
             <>
               <span className="text-sm text-muted-foreground">
                 Welcome, {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+                {isAdmin && <span className="ml-1 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">Admin</span>}
               </span>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
@@ -91,11 +114,18 @@ export const Header = () => {
             <a href="#properties" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Properties</a>
             <a href="#about" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">About</a>
             <a href="#contact" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Contact</a>
+            {isAdmin && (
+              <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Admin Panel
+              </Link>
+            )}
             
             {user ? (
               <div className="space-y-2 pt-2 px-3">
                 <div className="text-xs text-muted-foreground mb-2">
                   Welcome, {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+                  {isAdmin && <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">Admin</span>}
                 </div>
                 <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
