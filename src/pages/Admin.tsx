@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Edit, Trash2, Car, Home } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, Car, Home, Upload, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Listing {
   id: string;
@@ -125,16 +126,63 @@ const Admin = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Validation
+    if (!formData.title.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Title is required",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Price must be a positive number",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.whatsapp_number.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "WhatsApp number is required",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Validate JSON specifications
+    let specifications = {};
+    if (formData.specifications.trim()) {
+      try {
+        specifications = JSON.parse(formData.specifications);
+      } catch (error) {
+        toast({
+          title: "Validation Error",
+          description: "Specifications must be valid JSON format",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+    }
+
     const listingData = {
       type: formData.type,
-      title: formData.title,
+      title: formData.title.trim(),
       price: parseFloat(formData.price),
-      location: formData.location,
-      images: formData.images ? formData.images.split(',').map(img => img.trim()) : [],
-      description: formData.description || null,
-      features: formData.features ? formData.features.split(',').map(f => f.trim()) : [],
-      specifications: formData.specifications ? JSON.parse(formData.specifications) : {},
-      whatsapp_number: formData.whatsapp_number,
+      location: formData.location.trim(),
+      images: formData.images ? formData.images.split(',').map(img => img.trim()).filter(img => img) : [],
+      description: formData.description.trim() || null,
+      features: formData.features ? formData.features.split(',').map(f => f.trim()).filter(f => f) : [],
+      specifications,
+      whatsapp_number: formData.whatsapp_number.trim(),
       featured: formData.featured,
       created_by: user?.id,
     };
@@ -237,8 +285,24 @@ const Admin = () => {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your listings</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+              <p className="text-muted-foreground">Manage your listings for Charly Motors & Properties</p>
+            </div>
+            <Badge variant="outline" className="px-3 py-1">
+              <Car className="w-4 h-4 mr-2" />
+              Admin Access
+            </Badge>
+          </div>
+          
+          <Alert className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Admin Features:</strong> Add new listings, edit existing ones, delete unwanted listings, and manage featured status.
+              Images should be publicly accessible URLs (e.g., from Google Drive, Dropbox, or image hosting services).
+            </AlertDescription>
+          </Alert>
         </div>
 
         <Tabs defaultValue="create">
@@ -322,13 +386,19 @@ const Admin = () => {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium">Images (comma-separated URLs)</label>
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      Images (comma-separated URLs)
+                    </label>
                     <Textarea
                       value={formData.images}
                       onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value }))}
                       placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                      rows={2}
+                      rows={3}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Upload images to Google Drive, Dropbox, or any image host, then paste the public URLs here separated by commas.
+                    </p>
                   </div>
 
                   <div>
@@ -356,9 +426,15 @@ const Admin = () => {
                     <Textarea
                       value={formData.specifications}
                       onChange={(e) => setFormData(prev => ({ ...prev, specifications: e.target.value }))}
-                      placeholder='{"year": "2019", "mileage": "45,000 km", "engine": "2.5L"}'
+                      placeholder={formData.type === 'car' 
+                        ? '{"year": "2019", "mileage": "45,000 km", "engine": "2.5L", "transmission": "Automatic"}' 
+                        : '{"bedrooms": "3", "bathrooms": "2", "area": "1500 sqft", "parking": "2 cars"}'
+                      }
                       rows={3}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Enter specifications as JSON. For cars: year, mileage, engine, etc. For properties: bedrooms, bathrooms, area, etc.
+                    </p>
                   </div>
 
                   <div className="flex gap-4">
