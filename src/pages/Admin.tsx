@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Edit, Trash2, Car, Home, Upload, AlertCircle } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, Car, Home, Upload, AlertCircle, ArrowLeft, Star, Eye, Calendar, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import ImageUpload from '@/components/ImageUpload';
 
 interface Listing {
   id: string;
@@ -67,7 +68,7 @@ const Admin = () => {
     title: '',
     price: '',
     location: '',
-    images: '',
+    images: [] as string[],
     description: '',
     features: '',
     specifications: '',
@@ -112,7 +113,7 @@ const Admin = () => {
       title: '',
       price: '',
       location: '',
-      images: '',
+      images: [],
       description: '',
       features: '',
       specifications: '',
@@ -178,7 +179,7 @@ const Admin = () => {
       title: formData.title.trim(),
       price: parseFloat(formData.price),
       location: formData.location.trim(),
-      images: formData.images ? formData.images.split(',').map(img => img.trim()).filter(img => img) : [],
+      images: formData.images,
       description: formData.description.trim() || null,
       features: formData.features ? formData.features.split(',').map(f => f.trim()).filter(f => f) : [],
       specifications,
@@ -224,7 +225,7 @@ const Admin = () => {
       title: listing.title,
       price: listing.price.toString(),
       location: listing.location,
-      images: listing.images.join(', '),
+      images: listing.images,
       description: listing.description || '',
       features: listing.features.join(', '),
       specifications: JSON.stringify(listing.specifications),
@@ -282,47 +283,138 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
+      <div className="max-w-7xl mx-auto p-4">
+        {/* Enhanced Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage your listings for Charly Motors & Properties</p>
+          <div className="flex items-center justify-between mb-6">
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-200 bg-background/50 backdrop-blur-sm px-4 py-2 rounded-full border hover:border-primary/20"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Link>
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="px-4 py-2 bg-primary/10 border-primary/20">
+                <Car className="w-4 h-4 mr-2" />
+                Admin Access
+              </Badge>
+              <Badge variant="secondary" className="px-4 py-2">
+                <Eye className="w-4 h-4 mr-2" />
+                {listings.length} Listings
+              </Badge>
             </div>
-            <Badge variant="outline" className="px-3 py-1">
-              <Car className="w-4 h-4 mr-2" />
-              Admin Access
-            </Badge>
           </div>
           
-          <Alert className="mt-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Admin Features:</strong> Add new listings, edit existing ones, delete unwanted listings, and manage featured status.
-              Images should be publicly accessible URLs (e.g., from Google Drive, Dropbox, or image hosting services).
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Admin Dashboard
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Manage your premium automotive and property listings with our advanced admin tools
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-200/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Listings</p>
+                    <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">{listings.length}</p>
+                  </div>
+                  <div className="p-3 bg-blue-500/20 rounded-full">
+                    <Car className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-green-500/10 to-green-600/10 border-green-200/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Featured</p>
+                    <p className="text-2xl font-bold text-green-800 dark:text-green-200">
+                      {listings.filter(l => l.featured).length}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-green-500/20 rounded-full">
+                    <Star className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-200/20">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Properties</p>
+                    <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                      {listings.filter(l => l.type === 'property').length}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-purple-500/20 rounded-full">
+                    <Home className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <Alert className="mb-6 bg-primary/5 border-primary/20">
+            <AlertCircle className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-sm">
+              <strong className="text-primary">Pro Tip:</strong> Upload high-quality images directly from your device. 
+              Our system automatically optimizes and hosts them for you. Support for drag & drop, multiple selection, and instant preview.
             </AlertDescription>
           </Alert>
         </div>
 
-        <Tabs defaultValue="create">
-          <TabsList>
-            <TabsTrigger value="create">
+        <Tabs defaultValue="create" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-background/50 backdrop-blur-sm border border-border/50">
+            <TabsTrigger value="create" className="flex items-center data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Plus className="w-4 h-4 mr-2" />
               {editingListing ? 'Edit' : 'Create'} Listing
             </TabsTrigger>
-            <TabsTrigger value="manage">Manage Listings ({listings.length})</TabsTrigger>
+            <TabsTrigger value="manage" className="flex items-center data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Manage Listings ({listings.length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="create">
-            <Card>
-              <CardHeader>
-                <CardTitle>{editingListing ? 'Edit' : 'Create'} Listing</CardTitle>
-                <CardDescription>
-                  {editingListing ? 'Update the listing information' : 'Add a new car or property listing'}
-                </CardDescription>
+            <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl flex items-center">
+                      {editingListing ? (
+                        <>
+                          <Edit className="w-5 h-5 mr-2 text-primary" />
+                          Edit Listing
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-5 h-5 mr-2 text-primary" />
+                          Create New Listing
+                        </>
+                      )}
+                    </CardTitle>
+                    <CardDescription className="text-base mt-2">
+                      {editingListing ? 'Update the listing information and save changes' : 'Add a premium car or property listing to your inventory'}
+                    </CardDescription>
+                  </div>
+                  {editingListing && (
+                    <Badge variant="outline" className="px-3 py-1">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      Editing
+                    </Badge>
+                  )}
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -385,20 +477,16 @@ const Admin = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium flex items-center gap-2">
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-medium flex items-center gap-2 mb-4">
                       <Upload className="w-4 h-4" />
-                      Images (comma-separated URLs)
+                      Upload Images
                     </label>
-                    <Textarea
-                      value={formData.images}
-                      onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value }))}
-                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                      rows={3}
+                    <ImageUpload
+                      images={formData.images}
+                      onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))}
+                      maxImages={8}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Upload images to Google Drive, Dropbox, or any image host, then paste the public URLs here separated by commas.
-                    </p>
                   </div>
 
                   <div>
@@ -454,55 +542,148 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="manage">
-            <div className="space-y-4">
+            <div className="space-y-6">
               {loading ? (
-                <div className="flex justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin" />
+                <div className="flex justify-center items-center py-20">
+                  <div className="text-center">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading listings...</p>
+                  </div>
                 </div>
+              ) : listings.length === 0 ? (
+                <Card className="bg-background/50 backdrop-blur-sm border-border/50">
+                  <CardContent className="p-12 text-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Car className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">No listings yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Start by creating your first car or property listing
+                    </p>
+                  </CardContent>
+                </Card>
               ) : (
-                listings.map((listing) => (
-                  <Card key={listing.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            {listing.type === 'car' ? (
-                              <Car className="h-4 w-4" />
-                            ) : (
-                              <Home className="h-4 w-4" />
-                            )}
-                            <h3 className="font-semibold">{listing.title}</h3>
-                            {listing.featured && (
-                              <Badge variant="secondary">Featured</Badge>
-                            )}
+                <div className="grid gap-6">
+                  {listings.map((listing) => (
+                    <Card key={listing.id} className="bg-background/50 backdrop-blur-sm border-border/50 shadow-md hover:shadow-lg transition-all duration-200 group">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+                          {/* Image Preview */}
+                          <div className="flex-shrink-0">
+                            <div className="w-full lg:w-32 h-32 bg-muted rounded-lg overflow-hidden border">
+                              {listing.images && listing.images.length > 0 ? (
+                                <img
+                                  src={listing.images[0]}
+                                  alt={listing.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.nextElementSibling!.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <div className={`${listing.images && listing.images.length > 0 ? 'hidden' : ''} w-full h-full flex items-center justify-center`}>
+                                {listing.type === 'car' ? (
+                                  <Car className="h-8 w-8 text-muted-foreground" />
+                                ) : (
+                                  <Home className="h-8 w-8 text-muted-foreground" />
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">
-                            {listing.currency} {listing.price.toLocaleString()} • {listing.location}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {listing.description?.substring(0, 100)}...
-                          </p>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3 flex-wrap">
+                                {listing.type === 'car' ? (
+                                  <Car className="h-5 w-5 text-primary flex-shrink-0" />
+                                ) : (
+                                  <Home className="h-5 w-5 text-primary flex-shrink-0" />
+                                )}
+                                <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                                  {listing.title}
+                                </h3>
+                                {listing.featured && (
+                                  <Badge variant="secondary" className="bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 text-yellow-700 border-yellow-300/20">
+                                    <Star className="w-3 h-3 mr-1" />
+                                    Featured
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3 text-sm">
+                              <p className="font-semibold text-lg text-primary">
+                                KSH {listing.price.toLocaleString()}
+                              </p>
+                              <p className="text-muted-foreground flex items-center">
+                                <MapPin className="w-3 h-3 mr-1" />
+                                {listing.location}
+                              </p>
+                            </div>
+                            
+                            {listing.description && (
+                              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                {listing.description}
+                              </p>
+                            )}
+
+                            {listing.features.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-4">
+                                {listing.features.slice(0, 4).map((feature, index) => (
+                                  <Badge key={index} variant="outline" className="text-xs bg-muted/50">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                                {listing.features.length > 4 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{listing.features.length - 4} more
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(listing.created_at).toLocaleDateString()}
+                                {listing.images && listing.images.length > 0 && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{listing.images.length} image{listing.images.length !== 1 ? 's' : ''}</span>
+                                  </>
+                                )}
+                              </div>
+
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEdit(listing)}
+                                  className="hover:bg-primary/10 hover:border-primary/20 hover:text-primary transition-colors"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleDelete(listing.id)}
+                                  className="hover:bg-destructive/90"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex gap-2 ml-4">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(listing)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDelete(listing.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               )}
             </div>
           </TabsContent>
