@@ -2,7 +2,6 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import SearchSection from "@/components/SearchSection";
 import ListingsGrid from "@/components/ListingsGrid";
-import SupabaseTest from "@/components/SupabaseTest";
 import { useState } from "react";
 
 const Index = () => {
@@ -17,13 +16,6 @@ const Index = () => {
       <Header />
       <Hero />
       <SearchSection onSearchResults={handleSearchResults} />
-      
-      {/* Temporary Supabase Test */}
-      <section className="py-8 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <SupabaseTest />
-        </div>
-      </section>
       
       {/* Cars Section */}
       <section id="cars" className="py-16">
