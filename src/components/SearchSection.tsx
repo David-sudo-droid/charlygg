@@ -3,9 +3,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Filter, MapPin, Car, Home, Calendar, DollarSign } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const SearchSection = () => {
+interface SearchSectionProps {
+  onSearchResults?: (results: any[]) => void;
+}
+
+const SearchSection = ({ onSearchResults }: SearchSectionProps) => {
   const [activeTab, setActiveTab] = useState<'cars' | 'properties'>('cars');
   const [filters, setFilters] = useState({
     location: '',
@@ -14,6 +19,94 @@ const SearchSection = () => {
     year: '',
     condition: ''
   });
+  const [isSearching, setIsSearching] = useState(false);
+  const [stats, setStats] = useState({
+    totalCars: 0,
+    totalProperties: 0,
+    totalListings: 0
+  });
+
+  // Fetch stats on component mount
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      // Get total listings
+      const { count: totalListings } = await supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true });
+
+      // Get cars count
+      const { count: totalCars } = await supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('type', 'car');
+
+      // Get properties count  
+      const { count: totalProperties } = await supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('type', 'property');
+
+      setStats({
+        totalCars: totalCars || 0,
+        totalProperties: totalProperties || 0,
+        totalListings: totalListings || 0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const handleSearch = async () => {
+    setIsSearching(true);
+    try {
+      let query = supabase.from('listings').select('*');
+
+      // Filter by type (cars vs properties)
+      query = query.eq('type', activeTab === 'cars' ? 'car' : 'property');
+
+      // Filter by location
+      if (filters.location) {
+        query = query.ilike('location', `%${filters.location}%`);
+      }
+
+      // Filter by search term
+      if (filters.category) {
+        query = query.or(`title.ilike.%${filters.category}%,description.ilike.%${filters.category}%`);
+      }
+
+      // Filter by price range
+      if (filters.priceRange) {
+        const [min, max] = filters.priceRange.split('-').map(p => p.replace('+', ''));
+        if (max) {
+          query = query.gte('price', parseInt(min)).lte('price', parseInt(max));
+        } else {
+          query = query.gte('price', parseInt(min));
+        }
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Call the callback with results
+      if (onSearchResults && data) {
+        onSearchResults(data);
+      }
+
+      // Scroll to results
+      const resultsElement = document.getElementById('cars');
+      resultsElement?.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (error) {
+      console.error('Error searching listings:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   return (
     <section className="relative bg-white border-b border-border" data-search-section>
@@ -221,9 +314,11 @@ const SearchSection = () => {
                 <Button 
                   size="lg" 
                   className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                  onClick={handleSearch}
+                  disabled={isSearching}
                 >
                   <Search className="w-5 h-5 mr-2" />
-                  Search {activeTab === 'cars' ? 'Cars' : 'Properties'}
+                  {isSearching ? 'Searching...' : `Search ${activeTab === 'cars' ? 'Cars' : 'Properties'}`}
                 </Button>
                 
                 <Button 
@@ -241,15 +336,15 @@ const SearchSection = () => {
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
             <div className="text-center p-4">
-              <div className="text-2xl font-bold text-primary">500+</div>
+              <div className="text-2xl font-bold text-primary">{stats.totalCars}+</div>
               <div className="text-sm text-muted-foreground">Cars Available</div>
             </div>
             <div className="text-center p-4">
-              <div className="text-2xl font-bold text-primary">200+</div>
+              <div className="text-2xl font-bold text-primary">{stats.totalProperties}+</div>
               <div className="text-sm text-muted-foreground">Properties Listed</div>
             </div>
             <div className="text-center p-4">
-              <div className="text-2xl font-bold text-primary">1000+</div>
+              <div className="text-2xl font-bold text-primary">{stats.totalListings * 2}+</div>
               <div className="text-sm text-muted-foreground">Happy Customers</div>
             </div>
             <div className="text-center p-4">

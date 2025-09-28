@@ -24,7 +24,11 @@ interface Listing {
   featured: boolean;
 }
 
-export const ListingsGrid = () => {
+interface ListingsGridProps {
+  searchResults?: any[] | null;
+}
+
+export const ListingsGrid = ({ searchResults }: ListingsGridProps) => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,8 +38,15 @@ export const ListingsGrid = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchListings();
-  }, []);
+    if (searchResults) {
+      // Use search results if available
+      setListings(searchResults);
+      setLoading(false);
+    } else {
+      // Otherwise fetch all listings
+      fetchListings();
+    }
+  }, [searchResults]);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -109,7 +120,8 @@ export const ListingsGrid = () => {
   return (
     <section id="listings" className="py-16 bg-background">
       <div className="container mx-auto px-4">
-        {/* Header */}
+        {/* Header - Only show when not using search results */}
+        {!searchResults && (
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Our Premium <span className="text-accent">Listings</span>
@@ -118,8 +130,10 @@ export const ListingsGrid = () => {
             Discover quality vehicles and properties at competitive prices
           </p>
         </div>
+        )}
 
-        {/* Search and Filters */}
+        {/* Search and Filters - Only show when not using search results */}
+        {!searchResults && (
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -154,6 +168,7 @@ export const ListingsGrid = () => {
             </Button>
           </div>
         </div>
+        )}
 
         {filteredListings.length === 0 ? (
           <div className="text-center py-12">

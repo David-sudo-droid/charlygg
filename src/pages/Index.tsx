@@ -2,19 +2,36 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import SearchSection from "@/components/SearchSection";
 import ListingsGrid from "@/components/ListingsGrid";
+import SupabaseTest from "@/components/SupabaseTest";
+import { useState } from "react";
 
 const Index = () => {
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  
+  const handleSearchResults = (results: any[]) => {
+    setSearchResults(results);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
-      <SearchSection />
+      <SearchSection onSearchResults={handleSearchResults} />
+      
+      {/* Temporary Supabase Test */}
+      <section className="py-8 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <SupabaseTest />
+        </div>
+      </section>
       
       {/* Cars Section */}
       <section id="cars" className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Vehicle Collection</h2>
-          <ListingsGrid />
+          <h2 className="text-3xl font-bold text-center mb-12">
+            {searchResults ? `Search Results (${searchResults.length} found)` : 'Our Vehicle Collection'}
+          </h2>
+          <ListingsGrid searchResults={searchResults} />
         </div>
       </section>
 
