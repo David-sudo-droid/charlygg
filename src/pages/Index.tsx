@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import SearchSection from "@/components/SearchSection";
 import ListingsGrid from "@/components/ListingsGrid";
 
 const Index = () => {
@@ -7,6 +8,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
+      <SearchSection />
       
       {/* Cars Section */}
       <section id="cars" className="py-16">

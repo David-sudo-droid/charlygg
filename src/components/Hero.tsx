@@ -9,7 +9,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+    <section id="hero" className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 to-white">
       {/* Clean professional background */}
       <div className="absolute inset-0 bg-gradient-to-r from-white via-slate-50 to-white"></div>
       
@@ -37,37 +37,30 @@ const Hero = () => {
             </div>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-            Find Your Perfect
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+            Buy & Sell Cars
             <span className="block text-primary mt-2">
-              Car or Property
+              Find Quality Properties
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
-            Discover premium automotive and real estate solutions across Kenya. 
-            <span className="text-primary font-medium"> Quality guaranteed</span>, 
-            competitive prices, and exceptional service.
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            Kenya's trusted marketplace for verified vehicles and premium properties. 
+            <span className="text-primary font-medium"> Start your search below</span>
           </p>
 
           {/* Clean CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button 
               size="lg" 
-              className="text-lg px-10 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={() => scrollToSection('cars')}
+              className="text-lg px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => {
+                const searchElement = document.querySelector('[data-search-section]');
+                searchElement?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
-              <Car className="h-5 w-5 mr-2" />
-              Browse Premium Cars
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="text-lg px-10 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-              onClick={() => scrollToSection('properties')}
-            >
-              <Home className="h-5 w-5 mr-2" />
-              Explore Properties
+              <Search className="h-5 w-5 mr-2" />
+              Start Your Search
             </Button>
           </div>
 

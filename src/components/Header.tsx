@@ -31,17 +31,16 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-white shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1">
-            <Car className="h-6 w-6 text-primary" />
-            <Home className="h-6 w-6 text-accent" />
+        <Link to="/" className="flex items-center space-x-3">
+          <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
+            <Car className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-primary">Charly Motors</h1>
-            <p className="text-xs text-muted-foreground -mt-1">& Properties</p>
+            <h1 className="text-xl font-bold text-foreground">CharlyGG</h1>
+            <p className="text-xs text-muted-foreground -mt-1">Cars & Properties</p>
           </div>
         </Link>
 
@@ -108,7 +107,7 @@ export const Header = () => {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t bg-background">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border bg-white">
             <a href="#hero" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Home</a>
             <a href="#cars" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Cars</a>
             <a href="#properties" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-medium transition-smooth hover:text-primary">Properties</a>
