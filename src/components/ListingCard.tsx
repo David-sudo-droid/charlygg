@@ -36,19 +36,19 @@ const ListingCard = ({ listing, onViewDetails }: ListingCardProps) => {
 
   return (
     <Card 
-      className="listing-card cursor-pointer group relative overflow-hidden bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]"
+      className="listing-card cursor-pointer group relative overflow-hidden bg-white border-border shadow-md hover:shadow-xl transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Enhanced badges */}
+      {/* Clean badges */}
       <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
         {listing.featured && (
-          <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold shadow-lg">
+          <Badge className="bg-primary text-primary-foreground font-semibold">
             <Star className="w-3 h-3 mr-1" />
             Featured
           </Badge>
         )}
-        <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+        <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm">
           {listing.type === 'car' ? (
             <>
               <Car className="w-3 h-3 mr-1" />
@@ -66,7 +66,7 @@ const ListingCard = ({ listing, onViewDetails }: ListingCardProps) => {
       {/* Favorite button */}
       <button
         onClick={handleFavoriteClick}
-        className="absolute top-4 right-4 z-20 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background/90"
+        className="absolute top-4 right-4 z-20 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white border border-border/20"
       >
         <Heart 
           className={`w-4 h-4 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'}`} 
@@ -75,7 +75,7 @@ const ListingCard = ({ listing, onViewDetails }: ListingCardProps) => {
       
       {/* Enhanced image section */}
       <div 
-        className="relative h-56 bg-gradient-to-br from-muted to-muted/70 overflow-hidden group-hover:scale-105 transition-transform duration-700"
+        className="relative h-56 bg-slate-100 overflow-hidden transition-transform duration-300"
         onClick={() => onViewDetails(listing)}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
