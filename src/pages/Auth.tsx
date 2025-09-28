@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,39 +16,32 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
 
   useEffect(() => {
     // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/');
-      }
-    };
-    checkUser();
-  }, [navigate]);
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+    try {
+      await signInWithEmail(email, password);
       toast({
         title: "Success",
         description: "Successfully signed in!",
       });
       navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
     setLoading(false);
   };
@@ -57,29 +50,17 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    const redirectUrl = `${window.location.origin}/`;
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-        },
-      },
-    });
-
-    if (error) {
+    try {
+      await signUpWithEmail(email, password, fullName);
+      toast({
+        title: "Success",
+        description: "Check your email to confirm your account!",
+      });
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Check your email to confirm your account!",
       });
     }
     setLoading(false);
@@ -87,21 +68,16 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
-
-    if (error) {
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleFacebookSignIn = async () => {

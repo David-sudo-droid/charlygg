@@ -7,6 +7,9 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, fullName: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,11 +47,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await supabase.auth.signOut();
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+    if (error) throw error;
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+  };
+
+  const signUpWithEmail = async (email: string, password: string, fullName: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+    if (error) throw error;
+  };
+
   const value = {
     user,
     session,
     loading,
     signOut,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
   };
 
   return (
